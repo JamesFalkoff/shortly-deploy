@@ -38,8 +38,11 @@ module.exports = function(grunt) {
     },
 
     eslint: {
+      options: { 
+        quiet: true
+      },
       target: [
-        // Add list of files to lint here
+        '**/*.js'
       ]
     },
 
@@ -96,6 +99,10 @@ module.exports = function(grunt) {
   grunt.registerTask('test', [
     'mochaTest'
   ]);
+  
+  grunt.registerTask('lint', [
+    'eslint'
+  ]);
 
   grunt.registerTask('build', ['concat', 'uglify', 'cssmin']);
 
@@ -107,7 +114,17 @@ module.exports = function(grunt) {
     }
   });
 
-  grunt.registerTask('deploy', ['shell']);
+  grunt.registerTask('deploy-local', ['lint', 'test', 'build', 'nodemon']);
+
+  grunt.registerTask('deploy-prod', ['lint', 'test', 'build', 'shell']);
+  
+  grunt.registerTask('deploy', function(n) {
+    if (grunt.option('prod')) {
+      grunt.task.run([ 'deploy-prod' ]); 
+    } else {
+      grunt.task.run([ 'deploy-local' ]);
+    }
+  });
 
   grunt.registerTask('default', ['nodemon']);
   // ['nodemon']
